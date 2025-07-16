@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BSD.Clases;
 using Usuario.Clases;
 
 namespace Usuario
@@ -14,7 +15,7 @@ namespace Usuario
 
         static void DisplayLoginScreenWithLoading()
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.ForegroundColor = ConsoleColor.Blue;
             Console.Clear();
 
             Console.WriteLine("╔══════════════════════════════════════════════════════╗    ");
@@ -51,6 +52,7 @@ namespace Usuario
 
             gestionUsuarios = new Clases.Usuario();
             gestionUsuarios.CrearUsuariosAdministrativos();
+
             DisplayLoginScreenWithAuthentication();
 
             DisplayMainMenu();
@@ -112,25 +114,190 @@ namespace Usuario
             return passwordBuilder.ToString();
         }
 
-        static void DisplayMainMenu()
+        public static void DisplayMainMenu()
         {
             while (true)
             {
+                Console.Clear();
                 Console.WriteLine("█████████████████████████████████████████");
                 Console.WriteLine("█                                       █");
                 Console.WriteLine("█      * * * Menú Principal * * *       █");
                 Console.WriteLine("█                                       █");
                 Console.WriteLine("█████████████████████████████████████████");
-                Console.WriteLine("1. Registrar nuevo niños/niñas "); //resigtrar niñoas y buscar y consultar
-                Console.WriteLine("2. Gestion de datos: "); // edita informacion y elimina registro
-                Console.WriteLine("3. Reporte y listado: "); //genera reportes  e imprime listados 
-                Console.WriteLine("4. Accesivilidad");
+                Console.WriteLine("1. Registrar nuevo niños/niñas "); //resigtrar niñoas create
+                Console.WriteLine("2. Información de niños/niñas ");  //buscar y consultar read
+                Console.WriteLine("3. Registro");  //read all
+                Console.WriteLine("4. Gestion de datos: "); // edita informacion y elimina registro update
+                Console.WriteLine("5. Eliminar datos de beneficiario");  // delete
+                Console.WriteLine("6. Reporte y listado: "); //genera reportes  e imprime listados 
+                Console.WriteLine("7. Accesibilidad");
               
                 Console.WriteLine("0. Salir");
                 Console.Write("Seleccione una opción: ");
-                Console.ReadLine();
+                string opcion = Console.ReadLine();
+                switch (opcion)
+                {///configurar bien el menu
+                    case "1":
+                        CreateBeneficiario();
+                        break;
+                    case "2":
+                        ReadBeneficiario();//datos por cedula
+                        break;
+                    case "3":
+                        ReadAllBeneficiario();// total de ninos
+                        break;
+                    case "4":
+                        UpdateBeneficiario();
+                        break;
+                    case "5":
+                        DeleteBeneficiario();
+                        break;
+                    case "6":
+                        DeleteBeneficiario();
+                        break;
+                    case "7":
+                        DeleteBeneficiario();
+
+                        break;
+                    case "0":
+                        return; // Salir del menú
+                    default:
+                        Console.WriteLine("Opción no válida. Intente de nuevo.");
+                        Console.ReadLine();
+                        break;
+
+                }
             }
         }
+
+        private static void CreateBeneficiario()
+        {
+            Console.Clear();
+
+            Console.WriteLine("Registrar un Beneficiario");
+
+            Console.WriteLine("Ingrese la cedula del Beneficiario: ");
+            string cedula = Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("Ingrese los nombres del Beneficiario: ");
+            string nombres = Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("Ingrese los apellidos del Beneficiario: ");
+            string apellidos = Console.ReadLine();
+            Console.WriteLine();
+
+
+            Beneficiarios objBeneficiarios = new Beneficiarios(cedula, nombres, apellidos);
+
+            Console.WriteLine("Beneficiario Registrado Correctamente");
+        
+            Console.ReadLine();
+        }
+
+        private static void ReadBeneficiario()
+        {
+            Console.Clear();
+            Console.WriteLine(" Buscar Beneficiario Registrados");
+            Console.Write("Ingrese la cédula del Beneficiario a buscar: ");
+            string cedula = Console.ReadLine();
+            Beneficiarios objBeneficiarioBuscado = BSD.BaseDatos.BaseDeDatos.BuscarBeneficiarioPorCedula(cedula);
+
+            if (objBeneficiarioBuscado != null)
+            {
+                objBeneficiarioBuscado.imprimir();
+
+            }
+            else
+            {
+                Console.WriteLine("Beneficiario no encontrado");
+            }
+            Console.ReadLine();
+           
+        }
+
+
+        //READ ALL CLIENTES
+        private static void ReadAllBeneficiario()
+        {
+            Console.Clear();
+            Console.WriteLine("**** Mostrar Lista de Beneficiario ****");
+            Console.WriteLine();
+            BSD.BaseDatos.BaseDeDatos.ImprimirBeneficiarios();
+            Console.ReadLine();
+            Console.Clear();
+        }
+
+
+
+        //UPDATE CLIENTE
+        private static void UpdateBeneficiario()
+        {
+            Console.Clear();
+            Console.WriteLine("**** Actualizar información de un Beneficiario ****");
+            Console.WriteLine();
+            Console.Write("Ingrese la cédula del Beneficiario a buscar: ");
+            string cedula = Console.ReadLine();
+            Beneficiarios objBeneficiarioBuscado = BSD.BaseDatos.BaseDeDatos.BuscarBeneficiarioPorCedula(cedula);
+
+            if (objBeneficiarioBuscado != null)
+            {
+                objBeneficiarioBuscado.imprimir();
+                Console.WriteLine("Ingrese los nombres del Beneficiario a modificar: ");
+                string nombres = Console.ReadLine();
+                Console.WriteLine();
+                Console.WriteLine("Ingrese los apellidos del Beneficiario a modificar: ");
+                string apellidos = Console.ReadLine();
+                Console.WriteLine();
+                objBeneficiarioBuscado.setNombres(nombres);
+                objBeneficiarioBuscado.setApellidos(apellidos);
+                BSD.BaseDatos.BaseDeDatos.BaseDatosCliente.RemoveAt(objBeneficiarioBuscado.getID() - 1); //ELIMINAR CLIENTE
+                BSD.BaseDatos.BaseDeDatos.BaseDatosCliente.Insert(objBeneficiarioBuscado.getID() - 1, objBeneficiarioBuscado); // INSERTAR CLIENTE
+                Console.WriteLine("¡Beneficiario actualizado con éxito!");
+
+            }
+            else
+            {
+                Console.WriteLine("Beneficiario no encontrado.");
+            }
+            Console.ReadLine();
+            
+        }
+
+        //DELETE CLIENTE
+        private static void DeleteBeneficiario()
+        {
+            Console.Clear();
+            Console.WriteLine("**** Eliminar un Beneficiario existente ****");
+            Console.WriteLine();
+            Console.Write("Ingrese la cédula del Beneficiario a eliminar: ");
+            string cedula = Console.ReadLine();
+            Beneficiarios objBeneficiarioBuscado = BSD.BaseDatos.BaseDeDatos.BuscarBeneficiarioPorCedula(cedula);
+
+            if (objBeneficiarioBuscado != null)
+            {
+                Console.WriteLine($"¿Está seguro de que desea eliminar la información del Beneficiario: {objBeneficiarioBuscado.getNombresCompletos()} ? (S/N)");
+                string confirmacion = Console.ReadLine().ToUpper();
+                if (confirmacion == "S")
+                {
+                    BSD.BaseDatos.BaseDeDatos.BaseDatosCliente.Remove(objBeneficiarioBuscado);
+                    Console.WriteLine("Información eliminada correctamente.");
+                }
+                else
+                {
+                    Console.WriteLine("Se ha cancelado la eliminación.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Beneficiario no encontrado.");
+            }
+            Console.ReadLine();
+       
+        }
+
+
+
+      
     }
 }
 
